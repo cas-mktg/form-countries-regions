@@ -1,1 +1,106 @@
-<script>!function(){"use strict";let r;function e(){const e=document.getElementById("fe6099"),t=document.querySelector(".state-select-container");var n=document.getElementById("fe6098").value;const o=r[n]||[];if(e.innerHTML=o.length?"<option>Select a state/province</option>":"",t.style.display=o.length?"":"none",o.length){const c=document.createDocumentFragment();o.forEach(function(e){c.appendChild(new Option(e,e))}),e.appendChild(c)}}function o(){!function(){const e=document.getElementById("fe6098"),t=document.createDocumentFragment();Object.keys(r).forEach(function(e){t.appendChild(new Option(e,e))}),e.appendChild(t)}(),document.getElementById("fe6098").addEventListener("change",e)}document.addEventListener("DOMContentLoaded",function(){var e=document.getElementById("fe6098"),t=document.getElementById("fe6099");const n=document.querySelector(".state-select-container");e&&t&&n?(n.style.display="none",(t=localStorage.getItem("countriesRegionsData"))?(r=JSON.parse(t),o()):fetch("https://raw.githubusercontent.com/cas-mktg/form-countries-regions/main/countries_regions.json",{headers:{Accept:"application/json","Content-Type":"application/json"},method:"GET",mode:"cors"}).then(function(e){if(!e.ok)throw new Error("HTTP error! status: "+e.status);return e.json()}).then(function(e){r=e,localStorage.setItem("countriesRegionsData",JSON.stringify(e)),o()}).catch(function(e){console.error("Error loading the JSON file:",e)})):console.error("Required elements not found")})}();</script>
+<script>
+
+console.log("Country-state selector script loaded");
+
+document.addEventListener('DOMContentLoaded', function() { 
+  (function () {
+    "use strict";
+
+    let countriesData;
+
+    function fetchData() {
+        const url = "https://raw.githubusercontent.com/cas-mktg/form-countries-regions"
+        + "/main/countries_regions.json";
+        fetch(url, {
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            method: "GET",
+            mode: "cors"
+        }).then(function (response) {
+            if (!response.ok) {
+                throw new Error("HTTP error! status: " + response.status);
+            }
+            return response.json();
+        }).then(function (data) {
+            countriesData = data;
+            localStorage.setItem("countriesRegionsData", JSON.stringify(data));
+            initializeSelects();
+        }).catch(function (error) {
+            console.error("Error loading the JSON file:", error);
+        });
+    }
+
+    function populateCountries() {
+        const countrySelect = document.getElementById("fe6098");
+        const fragment = document.createDocumentFragment();
+        Object.keys(countriesData).forEach(function (country) {
+            fragment.appendChild(new Option(country, country));
+        });
+        countrySelect.appendChild(fragment);
+    }
+
+    function updateStates() {
+        const stateSelect = document.getElementById("fe6099");
+        const stateContainer = document.querySelector(
+            ".state-select-container"
+        );
+        const selectedCountry = document.getElementById("fe6098").value;
+        const states = countriesData[selectedCountry] || [];
+
+        stateSelect.innerHTML = (
+            states.length
+            ? "<option>Select a state/province</option>"
+            : ""
+        );
+        stateContainer.style.display = (
+            states.length
+            ? ""
+            : "none"
+        );
+
+        if (states.length) {
+            const fragment = document.createDocumentFragment();
+            states.forEach(function (state) {
+                fragment.appendChild(new Option(state, state));
+            });
+            stateSelect.appendChild(fragment);
+        }
+    }
+
+    function initializeSelects() {
+        populateCountries();
+        document.getElementById("fe6098").addEventListener(
+            "change",
+            updateStates
+        );
+    }
+
+    function init() {
+        const countrySelect = document.getElementById("fe6098");
+        const stateSelect = document.getElementById("fe6099");
+        const stateContainer = document.querySelector(
+            ".state-select-container"
+        );
+
+        if (!countrySelect || !stateSelect || !stateContainer) {
+            console.error("Required elements not found");
+            return;
+        }
+
+        stateContainer.style.display = "none";
+
+        const cachedData = localStorage.getItem("countriesRegionsData");
+        if (cachedData) {
+            countriesData = JSON.parse(cachedData);
+            initializeSelects();
+        } else {
+            fetchData();
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+})();
+});
+  </script>
